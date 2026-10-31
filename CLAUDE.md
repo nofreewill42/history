@@ -10,6 +10,7 @@ This repo is for reading ancient texts out loud and figuring out what story they
 - **Follow the formats exactly.**
   - Texts: [docs/text-format.md](docs/text-format.md) (reader-md 1). To add a text, follow [docs/adding-a-text.md](docs/adding-a-text.md).
   - Sessions: [sessions/README.md](sessions/README.md): folder names, file names and JSON field names.
+  - Reader, studio, recording and transcription design: [docs/transcription.md](docs/transcription.md). Check its phase table before building anything new.
 - **Clone without audio unless you need it:**
 
   ```sh

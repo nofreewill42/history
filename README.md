@@ -19,7 +19,7 @@ CLAUDE.md   rules for AI assistants working in this repo
 - **[texts/](texts/)**: each text is `texts/<id>.md` in the [reader-md 1 format](docs/text-format.md). Files never move; subject views will be generated later from front-matter fields such as tags. See [adding a text](docs/adding-a-text.md).
   - [1-enoch.md](texts/1-enoch.md): the Book of Enoch, R. H. Charles's 1917 translation (Project Gutenberg #77935, public domain).
 - **[sessions/](sessions/README.md)**: one folder per recording, `sessions/<YYYY>/<YYYY-MM-DDTHHMM>/`, holding the audio, what was on screen when (`nav.jsonl`), raw ASR output, and the corrected transcript. A recording belongs to no single text and may span many.
-- **[docs/](docs/)**: [text format](docs/text-format.md), [adding a text](docs/adding-a-text.md), [session layout](sessions/README.md).
+- **[docs/](docs/)**: [text format](docs/text-format.md), [adding a text](docs/adding-a-text.md), [session layout](sessions/README.md), [reader, recording and transcription](docs/transcription.md).
 
 ## Set up on a new computer
 

@@ -14,7 +14,9 @@ sessions/<YYYY>/<YYYY-MM-DDTHHMM>/        e.g. sessions/2026/2026-11-01T2107/
   transcript.jsonl
 ```
 
-The folder name is the local start time of the recording.
+The folder name is the local start time of the recording. If two recordings start in the same minute, the second gets `-2` appended (`2026-11-01T2107-2`), and so on.
+
+Sessions are recorded by the reader page and studio; see [docs/transcription.md](../docs/transcription.md).
 
 ### `session.json`
 
@@ -79,14 +81,45 @@ This is the **only** link between recordings and texts.
 
 ### `asr/<model>.json`
 
-Raw speech-recognition output, one file per model: segments, word timestamps, probabilities. Never edited by hand.
+Raw speech-recognition output, one file per model, named by the model's `id` from `studio/models.json`. Written by the studio, never edited by hand:
+
+```json
+{
+  "model": {"id": "whisper-large-v3", "name": "Whisper large-v3", "engine": "faster-whisper",
+            "hf_repo": "Systran/faster-whisper-large-v3", "revision": "<Hugging Face commit>"},
+  "settings": {"language": "en", "task": "transcribe", "chunk_s": null, "device": "cuda"},
+  "created": "2026-11-01T22:15:03+01:00",
+  "audio": {"file": "original.wav", "duration_s": 3725.4},
+  "segments": [
+    {"start": 12.34, "end": 17.8, "text": "...",
+     "avg_logprob": -0.21, "no_speech_prob": 0.01,
+     "words": [{"start": 12.34, "end": 12.6, "word": "And", "probability": 0.98}]}
+  ]
+}
+```
+
+- `model.revision` is the Hugging Face commit of the weights, or `null` for a local checkpoint.
+- `audio.file` is the file that was transcribed: `original.wav` when it exists on that machine, otherwise `audio.opus`.
+- `avg_logprob`, `no_speech_prob` and `words` appear only when the model provides them. A word's `probability` may be `null`.
 
 ### `transcript.jsonl`
 
 The current best transcript, one segment per line:
 
 ```json
-{"start": 12.34, "end": 17.80, "text": "...", "source": "whisper-v35", "checked": false}
+{"start": 12.34, "end": 17.8, "text": "...", "source": "whisper-large-v3", "checked": false, "lang": "en", "kind": "comment", "ref": null}
 ```
+
+| Field | Meaning |
+|---|---|
+| `start`, `end` | Seconds since the recording started. |
+| `text` | The segment's text. |
+| `source` | Model `id` the text came from, or `"manual"` for a segment typed by hand. |
+| `checked` | `true` once the segment has been verified by ear. |
+| `lang` | ISO language code. `"en"` until language identification exists (phase 3). |
+| `kind` | `"reading"` (reading the text aloud) or `"comment"` (thinking aloud). Everything is `"comment"` until alignment exists (phase 4). |
+| `ref` | For `"reading"` segments, the reference being read; otherwise `null`. |
+
+The first final transcription pass seeds this file. A later re-run replaces it only while no segment is `checked`. See [docs/transcription.md](../docs/transcription.md).
 
 Segments get corrected over time, and `checked` is set to `true` once a segment has been verified. Git history keeps every correction. Checked segments together with `audio.opus` are ground-truth training data for a personal speech recognizer.
