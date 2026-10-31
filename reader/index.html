@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>History reader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside id="sidebar" aria-label="Texts and contents">
+    <label class="picker">
+      <span class="visually-hidden">Text</span>
+      <select id="text-select"></select>
+    </label>
+    <nav id="toc" aria-label="Contents"></nav>
+  </aside>
+
+  <main id="reader" tabindex="-1">
+    <button id="toc-toggle" class="quiet" aria-controls="sidebar" aria-expanded="false">Contents</button>
+    <article id="text" aria-live="off"></article>
+  </main>
+
+  <footer id="bar" aria-label="Recording">
+    <button id="rec" class="rec" aria-pressed="false">
+      <span class="dot" aria-hidden="true"></span><span class="rec-label">Record</span>
+    </button>
+    <span id="clock" class="clock" aria-label="Recording time">0:00</span>
+    <span id="meter" class="meter" aria-hidden="true"><span></span></span>
+    <p id="preview" class="preview"></p>
+    <label class="toggle"><input type="checkbox" id="live-toggle"> Live preview</label>
+    <button id="open-sessions" class="quiet">Sessions</button>
+    <button id="open-models" class="quiet">Models</button>
+    <p id="status" class="status" role="status"></p>
+  </footer>
+
+  <dialog id="models-dialog" aria-labelledby="models-title">
+    <header>
+      <h2 id="models-title">Models</h2>
+      <button class="quiet close" data-close>Close</button>
+    </header>
+    <p class="hint">Weights download into the Hugging Face cache, outside the repo. <em>Live</em> runs while you record; <em>Final</em> transcribes the whole recording after you stop.</p>
+    <div class="table-wrap"><table id="models-table">
+      <thead><tr><th>Model</th><th>Size</th><th>Languages</th><th>Status</th><th>Live</th><th>Final</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </dialog>
+
+  <dialog id="sessions-dialog" aria-labelledby="sessions-title">
+    <header>
+      <h2 id="sessions-title">Sessions</h2>
+      <button class="quiet close" data-close>Close</button>
+    </header>
+    <div id="jobs"></div>
+    <div class="table-wrap"><table id="sessions-table">
+      <thead><tr><th>Session</th><th>Length</th><th>Texts</th><th>Transcribed by</th><th>Run a model</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
