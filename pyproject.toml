@@ -1,0 +1,47 @@
+[project]
+name = "history-studio"
+version = "0.1.0"
+description = "Local studio for the history reader: serves the reader page, records reading sessions, runs ASR models."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "huggingface_hub>=0.30",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+# One extra per ASR engine; the Models panel says which one a model needs.
+whisper = [
+    "faster-whisper>=1.1",
+    # cuBLAS + cuDNN 9 for CTranslate2 on the GPU (loaded by studio/engines.py)
+    "nvidia-cublas-cu12; sys_platform == 'linux'",
+    "nvidia-cudnn-cu12>=9,<10; sys_platform == 'linux'",
+]
+nemo = [
+    # speechlm2 provides SALM, which Canary-Qwen needs (checked in the 3.0.0 wheel).
+    "nemo_toolkit[asr,speechlm2]>=3.0",
+    "torch>=2.6",
+]
+transformers = [
+    "transformers>=4.52.4",
+    "torch>=2.6",
+    "torchaudio",
+    "peft",
+    "soundfile",
+    "accelerate",
+]
+
+[project.scripts]
+studio = "studio.app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["studio"]
+
+[dependency-groups]
+dev = ["pytest>=8"]

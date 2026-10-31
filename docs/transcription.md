@@ -56,6 +56,7 @@ The studio commits only if Git LFS is installed and `audio.opus` resolves to the
   | `word_timestamps` | Whether the model gives word-level timestamps |
   | `supports_prompt` | Whether it accepts text context for prompt biasing (phase 3) |
   | `chunk_s` | (optional) longest audio the studio feeds it at once; longer audio is split |
+  | `nemo_class` | (optional, nemo only) `"SALM"` for speech-LLMs like Canary-Qwen; default is NeMo's `ASRModel` |
   | `notes` | Anything else worth knowing |
 
 - **`studio/local.json`** (git-ignored) lists your own fine-tuned checkpoints, by local path in `hf_repo`, with the same fields. It is merged into the list.
