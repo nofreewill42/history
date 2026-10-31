@@ -25,7 +25,7 @@ Setup is in the [README](../README.md#run-the-reader-and-studio).
 
 1. **Record** in the page starts a session. The studio creates `sessions/<YYYY>/<YYYY-MM-DDTHHMM>/`.
 2. The page captures raw 16-bit PCM from the microphone (an AudioWorklet, no browser compression) and sends it to the studio every 5 seconds. The studio appends each chunk to `original.wav` on disk straight away, so a crash loses at most the last few seconds.
-3. While recording, the page logs every change of position (scrolling, sidebar jumps, switching texts) to `nav.jsonl`. `t` is measured on the audio clock (samples recorded so far), so it lines up exactly with the audio.
+3. While recording, the page logs every change of position (scrolling, sidebar jumps, switching texts) to `nav.jsonl`. The position is the passage at the reading line, 30% down the reading area, which is marked in the margin. A change is logged once scrolling settles for 0.35 s, so fast scrolling past a passage does not log it. `t` is measured on the audio clock (samples recorded so far), so it lines up exactly with the audio.
 4. **Stop** finalises the session:
    - fixes the WAV header of `original.wav` (git-ignored, local only);
    - encodes `audio.opus` (24 kbps mono, Git LFS) with ffmpeg;
@@ -122,6 +122,32 @@ Segments are aligned to the passage on screen. Segments that match the passage g
 ```
 
 Until phase 4 exists, every segment is seeded with `"kind": "comment"` and `"ref": null`. The full field list is in [sessions/README.md](../sessions/README.md#transcriptjsonl).
+
+## Testing
+
+`uv run pytest` covers the audio handling, sessions, crash recovery, the LFS check and the final pass, using a fake engine instead of real weights.
+
+Phase 1 was also tested end to end in headless Chrome with a fake microphone, against a throwaway clone of the repo:
+
+- recording, navigation logging, live preview and stop;
+- `audio.opus` committed through LFS while `original.wav` stayed local;
+- the final pass writing `asr/` and `transcript.jsonl` and committing them;
+- killing the studio mid-recording and restarting it, which recovered, committed and transcribed the session.
+
+The ASR model was a stand-in, because Hugging Face was unreachable from the machine it was built on.
+
+### Still to test on the GPU machine
+
+In this order, since each step depends on the previous one:
+
+1. **`uv sync --extra whisper`, then Install `whisper-tiny.en`.** This checks the download and progress display, the Hugging Face cache, and faster-whisper on CUDA. On CUDA, cuDNN is loaded from the pip wheels by `studio/engines.py`. If it fails with a `libcudnn` error, that loading is the part to look at.
+2. **A short real recording with your microphone and tiny.en as the final model.** This checks your browser's sample rate and permission prompt, and whether real speech comes out as a transcript.
+3. **Whisper large-v3 and large-v3 turbo** as final models, and turbo as the live model while recording. Watch how long the live preview lags behind.
+4. **`uv sync --extra nemo`** (large: PyTorch and NeMo), then Parakeet v2. The code reads word and segment timestamps from `hyp.timestamp["word"]` and `["segment"]` as the model card shows. If NeMo returns a different shape, the fix goes in `Nemo._asr`.
+5. **Canary-Qwen 2.5B.** This loads through `SALM.from_pretrained` on the downloaded folder and falls back to the repo id.
+6. **`uv sync --extra transformers`, then Granite Speech 3.3 8B** (~18 GB in bfloat16; close the other models first).
+7. **A long recording (an hour or more)**, to check memory use and the chunked models' cuts.
+8. **Firefox**, if you use it. Only Chrome was tested.
 
 ## Phase 2: correction view
 

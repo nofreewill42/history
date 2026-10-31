@@ -19,4 +19,6 @@ This repo is for reading ancient texts out loud and figuring out what story they
 
 - **Audio goes through Git LFS.** Run `git lfs install` before committing any `.opus` file, and check that `git check-attr filter -- <file>` reports `lfs`. If an LFS push fails, stop and report it; never commit audio without LFS.
 - **Never commit `original.*` files.** They are local-only master recordings and are git-ignored.
+- **Run the tests** with `uv run pytest` after changing `studio/`. They need no model weights.
+- **The studio commits sessions itself** (never pushes). When testing it, run it in a throwaway clone so test sessions don't end up in this repo's history.
 - **Keep commits small and descriptive:** one logical change per commit, with a message saying what changed and why.
