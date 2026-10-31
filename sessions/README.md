@@ -18,13 +18,31 @@ The folder name is the local start time of the recording.
 
 ### `session.json`
 
-Metadata about the session:
+Metadata about the session, exactly in this shape:
 
-- start time, with timezone offset (e.g. `2026-11-01T21:07:00+01:00`)
-- duration
-- device / microphone
-- free-form notes
-- ids of the texts touched, derived from `nav.jsonl`
+```json
+{
+  "id": "2026-11-01T2107",
+  "started": "2026-11-01T21:07:00+01:00",
+  "duration_s": 3725.4,
+  "device": "...",
+  "mic": "...",
+  "audio": {"codec": "opus", "bitrate_kbps": 24, "channels": 1},
+  "texts": ["1-enoch"],
+  "notes": ""
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `id` | The session folder name. |
+| `started` | Local start time with timezone offset. |
+| `duration_s` | Length of the recording in seconds. |
+| `device` | The computer or phone used to record. |
+| `mic` | The microphone used. |
+| `audio` | Encoding of `audio.opus`: codec, bitrate in kbps, number of channels. |
+| `texts` | Ids of the texts touched, derived from `nav.jsonl`. |
+| `notes` | Free-form notes; empty string if none. |
 
 ### `audio.opus`
 
@@ -48,7 +66,14 @@ One JSON object per line, written by the reader page, recording what was on scre
 
 - `t`: seconds since the recording started
 - `text`: the text's `id` (see [text format](../docs/text-format.md))
-- `ref`: the reference on screen
+- `ref`: the reference on screen, or `null` when no reference is on screen (for example, only a heading)
+- `heading` (optional): the text of the heading on screen
+
+When no reference is on screen:
+
+```json
+{"t": 3.0, "text": "1-enoch", "ref": null, "heading": "Sheol, or the Underworld (22)"}
+```
 
 This is the **only** link between recordings and texts.
 
